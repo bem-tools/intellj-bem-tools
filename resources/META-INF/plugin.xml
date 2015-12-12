@@ -1,0 +1,44 @@
+<idea-plugin version="2">
+  <id>info.bem.tools.bemplugin</id>
+  <name>BEM tools integration</name>
+  <version>1.0.2</version>
+  <vendor email="info@bem.info" url="https://bem.info/">BEM Community</vendor>
+  <category>HTML/JavaScript Development</category>
+
+  <description><![CDATA[
+      Allow to create bem entities from IntellJ-based IDE
+    ]]></description>
+
+  <change-notes><![CDATA[
+
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="141.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!--&lt;!&ndash; uncomment to enable plugin in all products-->
+  <depends>com.intellij.modules.lang</depends>
+  <!--&ndash;&gt;-->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+    <group id="info.bem.tools.NewActions">
+      <separator/>
+      <action id="info.bem.tools.NewBlock" class="info.bem.tools.bemplugin.action.block.NewBlockAction" />
+      <add-to-group anchor="after" group-id="NewGroup" relative-to-action="NewDir"/>
+    </group>
+  </actions>
+
+  <project-components>
+    <component>
+      <implementation-class>info.bem.tools.bemplugin.BemPluginProjectComponent</implementation-class>
+    </component>
+  </project-components>
+</idea-plugin>
