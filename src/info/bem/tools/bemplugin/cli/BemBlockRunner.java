@@ -25,8 +25,8 @@ public class BemBlockRunner {
     private static final int TIME_OUT = (int) TimeUnit.SECONDS.toMillis(120L);
 
 
-    public static BemBlockResult run(@NotNull String cwd, @NotNull String nodeInterpreter, @NotNull String jscsBin) {
-        BemBlockSettings settings = BemBlockSettings.build(cwd, nodeInterpreter, jscsBin);
+    public static BemBlockResult run(@NotNull String cwd, @NotNull String nodeInterpreter, @NotNull String jscsBin, String directory) {
+        BemBlockSettings settings = BemBlockSettings.build(cwd, nodeInterpreter, jscsBin, directory);
         return run(settings);
     }
 
@@ -74,6 +74,7 @@ public class BemBlockRunner {
         } else {
             commandLine.setExePath(settings.node);
             commandLine.addParameter(settings.bemBlockExecutablePath);
+            commandLine.addParameter(settings.directory);
         }
         return commandLine;
     }

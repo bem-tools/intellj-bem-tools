@@ -1,16 +1,20 @@
 package info.bem.tools.bemplugin.action.block;
 
 import com.intellij.ide.actions.CreateElementActionBase;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.RunResult;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import info.bem.tools.bemplugin.BemPluginProjectComponent;
 import info.bem.tools.bemplugin.BemIcons;
 import info.bem.tools.bemplugin.cli.BemBlockResult;
@@ -23,6 +27,8 @@ import javax.swing.*;
 
 
 public class NewBlockAction extends CreateElementActionBase implements DumbAware {
+    private static final Logger LOG = Logger.getInstance("#info.bem.tools.bemplugin.action.block.NewBlockAction");
+    protected Project project;
 
     public static boolean isBemPluginEnabled(Project project) {
         if (project != null) {
@@ -34,7 +40,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
     @Override
     public void update(AnActionEvent e) {
-        final Project project = e.getProject();
+        project = e.getProject();
         if (project == null) {
             return;
         }
@@ -44,24 +50,52 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
         component.bemBlockExecutable = "/Users/h4/bemBlock.js";
 
 //        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), component.nodeInterpreter, component.bemBlockExecutable);
-        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), "/usr/local/bin/node", "/Users/h4/bemBlock.js");
+//        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), "/usr/local/bin/node", "/Users/h4/bemBlock.js");
     }
 
     public NewBlockAction() {
         super("BEM Block", "Create BEM blocks", BemIcons.BEM);
+
+        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
+            public void run() {
+                LOG.warn("Ololo");
+                // to prevent deadlocks, this code must run while not holding the ActionManager lock
+//                FileTemplateManager manager = FileTemplateManager.getDefaultInstance();
+//                final FileTemplate template = manager.getTemplate("RTFile3");
+//                noinspection HardCodedStringLiteral
+//                if (template != null && template.getExtension().equals("rt")) {
+//                    manager.removeTemplate(template);
+//                }
+            }
+        });
     }
 
     @NotNull
     @Override
-    protected PsiElement[] invokeDialog(Project project, PsiDirectory psiDirectory) {
-        final NewBlockDialog dialog = new NewBlockDialog(project);
+    protected PsiElement[] invokeDialog(Project project, PsiDirectory directory) {
+        final MyInputValidator validator = new MyInputValidator(project, directory);
+        final NewBlockDialog dialog = new NewBlockDialog(project, validator);
         dialog.show();
-        return new PsiElement[0];
+        return validator.getCreatedElements();
     }
 
     @NotNull
     @Override
-    protected PsiElement[] create(String s, PsiDirectory psiDirectory) throws Exception {
+    protected PsiElement[] create(String newName, PsiDirectory psiDirectory) throws Exception {
+        PsiElement createdFile;
+        String directory = psiDirectory.toString();
+
+        // TODO: Получать значения чекбоксов, чтобы передать их дальше
+
+        BemPluginProjectComponent component = project.getComponent(BemPluginProjectComponent.class);
+        component.nodeInterpreter = "/usr/local/bin/node";
+        component.bemBlockExecutable = "/Users/h4/bemBlock.js";
+
+//        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), component.nodeInterpreter, component.bemBlockExecutable);
+
+        // Запускаем node-файл и он пыщь-пыщь что-то там делает
+        // Потом всё нужно получить пути до новых файлов и вернуть список инстансов PsiFile
+        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), "/usr/local/bin/node", "/Users/h4/bemBlock.js", newName);
         return new PsiElement[0];
     }
 
@@ -72,23 +106,27 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
     @Override
     protected String getCommandName() {
-        return "BEM Mother fucka";
+        return "Create BEM Block Command";
     }
 
     @Override
     protected String getActionName(PsiDirectory psiDirectory, String s) {
-        return null;
+        return "Create BEM Block Action";
     }
 
     private class NewBlockDialog extends DialogWrapper {
         private JPanel newBlockTopPanel;
         private JTextField blockNameTextField;
+        private JCheckBox JSCheckBox;
+        private JCheckBox CSSCheckBox;
+        private final MyInputValidator myValidator;
 
         private final Project myProject;
 
-        public NewBlockDialog(final Project project) {
+        public NewBlockDialog(final Project project, final MyInputValidator validator) {
             super(project, true);
             myProject = project;
+            myValidator = validator;
 
             init();
 
@@ -108,6 +146,15 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
         public JComponent getPreferredFocusedComponent() {
             return blockNameTextField;
+        }
+
+        protected void doOKAction() {
+            final String inputString = blockNameTextField.getText().trim();
+
+            if (myValidator.checkInput(inputString) && myValidator.canClose(inputString)) {
+                close(OK_EXIT_CODE);
+            }
+            close(OK_EXIT_CODE);
         }
     }
 

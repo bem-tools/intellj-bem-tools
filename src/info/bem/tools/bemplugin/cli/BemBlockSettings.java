@@ -12,13 +12,15 @@ public class BemBlockSettings {
     public String cwd;
     public String targetFile;
     public String bemBlockExecutablePath;
+    public String directory;
 
     public static BemBlockSettings build(@NotNull String cwd, @NotNull String nodeInterpreter,
-                                         @NotNull String bemBlockBin) {
+                                         @NotNull String bemBlockBin, String directory) {
         BemBlockSettings settings = new BemBlockSettings();
         settings.cwd = cwd;
         settings.bemBlockExecutablePath = bemBlockBin;
         settings.node = nodeInterpreter;
+        settings.directory = directory;
         return settings;
     }
 }
