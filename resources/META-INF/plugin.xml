@@ -30,9 +30,9 @@
   <actions>
     <!-- Add your actions here -->
     <group id="info.bem.tools.NewActions" text="BEM" popup="false">
-      <separator/>
       <action id="info.bem.tools.NewBlock" class="info.bem.tools.bemplugin.action.block.NewBlockAction" />
-      <add-to-group anchor="after" group-id="NewGroup" relative-to-action="NewDir"/>
+      <separator/>
+      <add-to-group anchor="before" group-id="NewGroup" relative-to-action="NewFile"/>
     </group>
   </actions>
 
