@@ -117,8 +117,6 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
     private class NewBlockDialog extends DialogWrapper {
         private JPanel newBlockTopPanel;
         private JTextField blockNameTextField;
-        private JCheckBox JSCheckBox;
-        private JCheckBox CSSCheckBox;
         private final MyInputValidator myValidator;
 
         private final Project myProject;
