@@ -11,7 +11,9 @@ import com.intellij.execution.process.*;
 import info.bem.tools.bemplugin.cli.data.BemBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.vfs.VirtualFileManager;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,8 +27,12 @@ public class BemBlockRunner {
     private static final int TIME_OUT = (int) TimeUnit.SECONDS.toMillis(120L);
 
 
-    public static BemBlockResult run(@NotNull String cwd, @NotNull String nodeInterpreter, @NotNull String jscsBin, String directory) {
-        BemBlockSettings settings = BemBlockSettings.build(cwd, nodeInterpreter, jscsBin, directory);
+    public static BemBlockResult run(@NotNull String cwd,
+                                     @NotNull String directory,
+                                     @NotNull String block,
+                                     @NotNull String[] techs
+    ) {
+        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, block, techs);
         return run(settings);
     }
 
@@ -34,11 +40,12 @@ public class BemBlockRunner {
         BemBlockResult result = new BemBlockResult();
         try {
             GeneralCommandLine commandLine = createCommandLineLint(settings);
-            commandLine.addParameter("--fix");
+            // commandLine.createProcess();
             ProcessOutput out = execute(commandLine, TIME_OUT);
             result.errorOutput = out.getStderr();
             try {
                 result.bemBlock = BemBlock.read(out.getStdout());
+                VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
             } catch (Exception e) {
                 LOG.error(e);
                 //result.errorOutput = out.getStdout();
@@ -56,7 +63,7 @@ public class BemBlockRunner {
 //        commandLine.addParameter(settings.targetFile);
 //        addParamIfExist(commandLine, "config", settings.config);
 //        addParam(commandLine, "reporter", "checkstyle");
-        commandLine.addParameter("-v");
+//        commandLine.addParameter("-v");
 //        addParamIfExist(commandLine, "preset", settings.preset);
 //        addParamIfExist(commandLine, "esprima", settings.esprima);
 //        if (settings.esnext) {
@@ -69,19 +76,29 @@ public class BemBlockRunner {
     private static GeneralCommandLine createCommandLine(@NotNull BemBlockSettings settings) {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setWorkDirectory(settings.cwd);
-        if (SystemInfo.isWindows) {
-            commandLine.setExePath(settings.bemBlockExecutablePath);
-        } else {
-            commandLine.setExePath(settings.node);
-            commandLine.addParameter(settings.bemBlockExecutablePath);
+
+
+
+//        if (SystemInfo.isWindows) {
+//            commandLine.setExePath(settings.bemBlockExecutablePath);
+//        } else {
+            commandLine.setExePath("bem");
+            commandLine.addParameter("create");
+            commandLine.addParameter("-b");
+            commandLine.addParameter(settings.block);
+            commandLine.addParameter("-l");
             commandLine.addParameter(settings.directory);
-        }
+            for (int i = 0; i < settings.techs.length; i++) {
+                commandLine.addParameter("-t");
+                commandLine.addParameter(settings.techs[i]);
+            }
+//        }
+
         return commandLine;
     }
 
     @NotNull
     private static ProcessOutput execute(@NotNull GeneralCommandLine commandLine, int timeoutInMilliseconds) throws ExecutionException {
-        LOG.info("Running jscs command: " + commandLine.getCommandLineString());
         Process process = commandLine.createProcess();
         OSProcessHandler processHandler = new ColoredProcessHandler(process, commandLine.getCommandLineString(), Charsets.UTF_8);
         final ProcessOutput output = new ProcessOutput();

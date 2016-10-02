@@ -25,10 +25,16 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.*;
 
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NewBlockAction extends CreateElementActionBase implements DumbAware {
     private static final Logger LOG = Logger.getInstance("#info.bem.tools.bemplugin.action.block.NewBlockAction");
     protected Project project;
+    protected NewBlockDialog dialog;
 
     public static boolean isBemPluginEnabled(Project project) {
         if (project != null) {
@@ -58,7 +64,6 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
             public void run() {
-                LOG.warn("Ololo");
                 // to prevent deadlocks, this code must run while not holding the ActionManager lock
 //                FileTemplateManager manager = FileTemplateManager.getDefaultInstance();
 //                final FileTemplate template = manager.getTemplate("RTFile3");
@@ -74,7 +79,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
     @Override
     protected PsiElement[] invokeDialog(Project project, PsiDirectory directory) {
         final MyInputValidator validator = new MyInputValidator(project, directory);
-        final NewBlockDialog dialog = new NewBlockDialog(project, validator);
+        dialog = new NewBlockDialog(project, validator);
         dialog.show();
         return validator.getCreatedElements();
     }
@@ -83,19 +88,38 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
     @Override
     protected PsiElement[] create(String newName, PsiDirectory psiDirectory) throws Exception {
         PsiElement createdFile;
-        String directory = psiDirectory.toString();
 
-        // TODO: Получать значения чекбоксов, чтобы передать их дальше
+        String directory = psiDirectory.toString().replace("PsiDirectory:","");
+
+        // Получаем значения чекбоксов, чтобы передать их дальше
+
+        final boolean depsCheckBoxIsSelected = dialog.depsCheckBox.isSelected();
+        final boolean cssCheckBoxIsSelected = dialog.cssCheckBox.isSelected();
+        final boolean bemhtmlCheckBoxIsSelected = dialog.bemhtmlCheckBox.isSelected();
+        final boolean jsCheckBoxIsSelected = dialog.jsCheckBox.isSelected();
+
+        HashMap<String,Boolean> checkBoxMap = new HashMap<String, Boolean>();
+        checkBoxMap.put("deps.js", depsCheckBoxIsSelected);
+        checkBoxMap.put("css", cssCheckBoxIsSelected);
+        checkBoxMap.put("bemhtml.js", bemhtmlCheckBoxIsSelected);
+        checkBoxMap.put("js", jsCheckBoxIsSelected);
+
+
+        ArrayList<String> techList = new ArrayList<String>();
+
+        for (Map.Entry<String, Boolean> entry : checkBoxMap.entrySet()) {
+            if (entry.getValue()) {
+                techList.add(entry.getKey());
+            }
+        }
+
+        final String[] techs = techList.toArray(new String[techList.size()]);
 
         BemPluginProjectComponent component = project.getComponent(BemPluginProjectComponent.class);
-        component.nodeInterpreter = "/usr/local/bin/node";
-        component.bemBlockExecutable = "/Users/h4/bemBlock.js";
-
-//        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), component.nodeInterpreter, component.bemBlockExecutable);
 
         // Запускаем node-файл и он пыщь-пыщь что-то там делает
         // Потом всё нужно получить пути до новых файлов и вернуть список инстансов PsiFile
-        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), "/usr/local/bin/node", "/Users/h4/bemBlock.js", newName);
+        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), directory, newName, techs);
         return new PsiElement[0];
     }
 
@@ -117,6 +141,10 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
     private class NewBlockDialog extends DialogWrapper {
         private JPanel newBlockTopPanel;
         private JTextField blockNameTextField;
+        private JCheckBox depsCheckBox;
+        private JCheckBox cssCheckBox;
+        private JCheckBox bemhtmlCheckBox;
+        private JCheckBox jsCheckBox;
         private final MyInputValidator myValidator;
 
         private final Project myProject;
@@ -136,6 +164,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
                     setOKActionEnabled(!blockNameTextField.getText().isEmpty());
                 }
             });
+
         }
 
         protected JComponent createCenterPanel() {

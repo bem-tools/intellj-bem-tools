@@ -8,19 +8,21 @@ import org.jetbrains.annotations.Nullable;
  */
 public class BemBlockSettings {
     public String node;
-    public String jscsExecutablePath;
     public String cwd;
-    public String targetFile;
-    public String bemBlockExecutablePath;
     public String directory;
+    public String block;
+    public String[] techs;
 
-    public static BemBlockSettings build(@NotNull String cwd, @NotNull String nodeInterpreter,
-                                         @NotNull String bemBlockBin, String directory) {
+    public static BemBlockSettings build(@NotNull String cwd,
+                                         @NotNull String directory,
+                                         String block,
+                                         @NotNull String[] techs
+    ) {
         BemBlockSettings settings = new BemBlockSettings();
         settings.cwd = cwd;
-        settings.bemBlockExecutablePath = bemBlockBin;
-        settings.node = nodeInterpreter;
         settings.directory = directory;
+        settings.block = block;
+        settings.techs = techs;
         return settings;
     }
 }

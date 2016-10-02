@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>info.bem.tools.bemplugin</id>
   <name>BEM tools integration</name>
-  <version>1.0.2</version>
+  <version>0.1.0</version>
   <vendor email="info@bem.info" url="https://bem.info/">BEM Community</vendor>
   <category>HTML/JavaScript Development</category>
 
