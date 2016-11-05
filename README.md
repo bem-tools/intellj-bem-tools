@@ -12,4 +12,4 @@ Install [bem-tools-core](https://github.com/bem-tools/bem-tools-core/)
 npm i -g bem
 ```
 
-Download BEM.jar and install plugin (use "instal plugin from disk..." option)
+Download [BEM.jar](https://github.com/bem-tools/intellj-bem-tools/blob/master/BEM.jar) and install plugin (use "instal plugin from disk..." option)
