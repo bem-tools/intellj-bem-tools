@@ -1,12 +1,22 @@
 <idea-plugin version="2">
   <id>info.bem.tools.bemplugin</id>
   <name>BEM tools integration</name>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <vendor email="info@bem.info" url="https://bem.info/">BEM Community</vendor>
   <category>HTML/JavaScript Development</category>
 
   <description><![CDATA[
       Allow to create bem entities from IntellJ-based IDE
+
+      level1/b1.{css,js} // will create b1.css and b1.js in level1/b1 folder
+      b1__e1.{css,js} // will create b1/__e1/b1__e1.css and b1/__e1/b1__d1.js on default levels or cwd
+      b1 // will create b1 with default techs from config on default levels or cwd
+
+      https://github.com/bem-tools/bem-tools-create
+
+      Install bem-tools-core to use this plugin (npm i -g bem)
+
+
     ]]></description>
 
   <change-notes><![CDATA[
@@ -21,6 +31,7 @@
        on how to target different products -->
   <!--&lt;!&ndash; uncomment to enable plugin in all products-->
   <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.platform</depends>
   <!--&ndash;&gt;-->
 
   <extensions defaultExtensionNs="com.intellij">

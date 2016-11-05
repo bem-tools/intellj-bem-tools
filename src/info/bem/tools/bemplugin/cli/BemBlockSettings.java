@@ -12,17 +12,23 @@ public class BemBlockSettings {
     public String directory;
     public String block;
     public String[] techs;
+    public String elName;
+    public String modName;
 
     public static BemBlockSettings build(@NotNull String cwd,
                                          @NotNull String directory,
-                                         String block,
-                                         @NotNull String[] techs
+                                         @NotNull String block,
+                                         @NotNull String[] techs,
+                                         @NotNull String elName,
+                                         @NotNull String modName
     ) {
         BemBlockSettings settings = new BemBlockSettings();
         settings.cwd = cwd;
         settings.directory = directory;
         settings.block = block;
         settings.techs = techs;
+        settings.elName = elName;
+        settings.modName = modName;
         return settings;
     }
 }

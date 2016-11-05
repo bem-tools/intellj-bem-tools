@@ -12,9 +12,8 @@ import info.bem.tools.bemplugin.cli.data.BemBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.vfs.VirtualFileManager;
-
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * Created by h4 on 12/12/15.
@@ -30,9 +29,11 @@ public class BemBlockRunner {
     public static BemBlockResult run(@NotNull String cwd,
                                      @NotNull String directory,
                                      @NotNull String block,
-                                     @NotNull String[] techs
+                                     @NotNull String[] techs,
+                                     @NotNull String elName,
+                                     @NotNull String modName
     ) {
-        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, block, techs);
+        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, block, techs, elName, modName);
         return run(settings);
     }
 
@@ -40,7 +41,6 @@ public class BemBlockRunner {
         BemBlockResult result = new BemBlockResult();
         try {
             GeneralCommandLine commandLine = createCommandLineLint(settings);
-            // commandLine.createProcess();
             ProcessOutput out = execute(commandLine, TIME_OUT);
             result.errorOutput = out.getStderr();
             try {
@@ -48,7 +48,6 @@ public class BemBlockRunner {
                 VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
             } catch (Exception e) {
                 LOG.error(e);
-                //result.errorOutput = out.getStdout();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,16 +58,6 @@ public class BemBlockRunner {
 
     private static GeneralCommandLine createCommandLineLint(BemBlockSettings settings) {
         GeneralCommandLine commandLine = createCommandLine(settings);
-        // TODO validate arguments (file exist etc)
-//        commandLine.addParameter(settings.targetFile);
-//        addParamIfExist(commandLine, "config", settings.config);
-//        addParam(commandLine, "reporter", "checkstyle");
-//        commandLine.addParameter("-v");
-//        addParamIfExist(commandLine, "preset", settings.preset);
-//        addParamIfExist(commandLine, "esprima", settings.esprima);
-//        if (settings.esnext) {
-//            commandLine.addParameter("--esnext");
-//        }
         return commandLine;
     }
 
@@ -77,21 +66,21 @@ public class BemBlockRunner {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setWorkDirectory(settings.cwd);
 
+        LOG.info("test!");
 
 
 //        if (SystemInfo.isWindows) {
 //            commandLine.setExePath(settings.bemBlockExecutablePath);
 //        } else {
-            commandLine.setExePath("bem");
-            commandLine.addParameter("create");
-            commandLine.addParameter("-b");
-            commandLine.addParameter(settings.block);
-            commandLine.addParameter("-l");
-            commandLine.addParameter(settings.directory);
-            for (int i = 0; i < settings.techs.length; i++) {
-                commandLine.addParameter("-t");
-                commandLine.addParameter(settings.techs[i]);
-            }
+            commandLine.setExePath("node");
+            commandLine.addParameter("-e");
+            String nodeCode = "var childProcess = require('child_process');" +
+                    "var path = require('path');" +
+                    "var fs = require('fs');" +
+                    "var globalNodeModules = childProcess.execSync('npm root -g').toString().trim();" +
+                    "var packageDir = path.join(globalNodeModules, 'bem-tools-create');" +
+                    "var create = require(packageDir); create('" + settings.directory  + '/' + settings.block  +"')";
+            commandLine.addParameter(nodeCode);
 //        }
 
         return commandLine;

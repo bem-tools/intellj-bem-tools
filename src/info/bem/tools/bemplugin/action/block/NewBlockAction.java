@@ -91,35 +91,16 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
         String directory = psiDirectory.toString().replace("PsiDirectory:","");
 
-        // Получаем значения чекбоксов, чтобы передать их дальше
-
-        final boolean depsCheckBoxIsSelected = dialog.depsCheckBox.isSelected();
-        final boolean cssCheckBoxIsSelected = dialog.cssCheckBox.isSelected();
-        final boolean bemhtmlCheckBoxIsSelected = dialog.bemhtmlCheckBox.isSelected();
-        final boolean jsCheckBoxIsSelected = dialog.jsCheckBox.isSelected();
-
-        HashMap<String,Boolean> checkBoxMap = new HashMap<String, Boolean>();
-        checkBoxMap.put("deps.js", depsCheckBoxIsSelected);
-        checkBoxMap.put("css", cssCheckBoxIsSelected);
-        checkBoxMap.put("bemhtml.js", bemhtmlCheckBoxIsSelected);
-        checkBoxMap.put("js", jsCheckBoxIsSelected);
-
-
-        ArrayList<String> techList = new ArrayList<String>();
-
-        for (Map.Entry<String, Boolean> entry : checkBoxMap.entrySet()) {
-            if (entry.getValue()) {
-                techList.add(entry.getKey());
-            }
-        }
-
-        final String[] techs = techList.toArray(new String[techList.size()]);
+        final String[] techs = {};
 
         BemPluginProjectComponent component = project.getComponent(BemPluginProjectComponent.class);
 
+        final String elName = "";
+        final String modName = "";
+
         // Запускаем node-файл и он пыщь-пыщь что-то там делает
         // Потом всё нужно получить пути до новых файлов и вернуть список инстансов PsiFile
-        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), directory, newName, techs);
+        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), directory, newName, techs, elName, modName);
         return new PsiElement[0];
     }
 
@@ -156,7 +137,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
             init();
 
-            setTitle("Create New BEM Block");
+            setTitle("Create New BEM");
             setOKActionEnabled(false);
 
             blockNameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
@@ -193,7 +174,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
             }
 
             public String getGroupID() {
-                return "Create BEM Block";
+                return "BEM Create";
             }
         }.execute();
     }
