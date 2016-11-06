@@ -72,7 +72,7 @@ public class BemBlockRunner {
 //        if (SystemInfo.isWindows) {
 //            commandLine.setExePath(settings.bemBlockExecutablePath);
 //        } else {
-            commandLine.setExePath("node");
+            commandLine.setExePath("/usr/local/bin/node");
             commandLine.addParameter("-e");
             String nodeCode = "var childProcess = require('child_process');" +
                     "var path = require('path');" +
