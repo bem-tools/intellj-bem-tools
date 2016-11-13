@@ -33,13 +33,20 @@
        on how to target different products -->
   <!--&lt;!&ndash; uncomment to enable plugin in all products-->
   <depends>com.intellij.modules.lang</depends>
+  <depends>JavaScript</depends>
   <depends>com.intellij.modules.platform</depends>
   <!--&ndash;&gt;-->
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-  </extensions>
+    <projectService serviceImplementation="info.bem.tools.bemplugin.settings.Settings"/>
+    <projectConfigurable implementation="info.bem.tools.bemplugin.settings.BemSettingsPage"/>
 
+    <!-- annotate .jscsrc -->
+    <!--<fileTypeFactory implementation="com.jscs.config.JscsConfigFileTypeFactory"/>-->
+    <!--<completion.contributor order="first" language="JavaScript" implementationClass="com.jscs.config.JscsConfigCompletionContributor"/>-->
+    <!--<annotator language="JSON" implementationClass="com.jscs.config.JscsConfigAnnotator"/>-->
+  </extensions>
   <actions>
     <!-- Add your actions here -->
     <group id="info.bem.tools.NewActions" text="BEM" popup="false">
@@ -48,6 +55,7 @@
       <add-to-group anchor="before" group-id="NewGroup" relative-to-action="NewFile"/>
     </group>
   </actions>
+
 
   <project-components>
     <component>

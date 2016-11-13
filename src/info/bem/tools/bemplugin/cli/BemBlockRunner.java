@@ -12,6 +12,8 @@ import info.bem.tools.bemplugin.cli.data.BemBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.vfs.VirtualFileManager;
+
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 
@@ -28,12 +30,11 @@ public class BemBlockRunner {
 
     public static BemBlockResult run(@NotNull String cwd,
                                      @NotNull String directory,
-                                     @NotNull String block,
-                                     @NotNull String[] techs,
-                                     @NotNull String elName,
-                                     @NotNull String modName
+                                     @NotNull String nodeInterpreter,
+                                     @NotNull String block
     ) {
-        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, block, techs, elName, modName);
+        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, nodeInterpreter, block);
+
         return run(settings);
     }
 
@@ -64,24 +65,23 @@ public class BemBlockRunner {
     @NotNull
     private static GeneralCommandLine createCommandLine(@NotNull BemBlockSettings settings) {
         GeneralCommandLine commandLine = new GeneralCommandLine();
-        commandLine.setWorkDirectory(settings.cwd);
+        // commandLine.setWorkDirectory(settings.cwd);
+        commandLine.setWorkDirectory(settings.directory);
 
-        LOG.info("test!");
+//        if (SystemInfo.isWindows) {}
 
 
-//        if (SystemInfo.isWindows) {
-//            commandLine.setExePath(settings.bemBlockExecutablePath);
-//        } else {
-            commandLine.setExePath("/usr/local/bin/node");
+            commandLine.setExePath(settings.node);
             commandLine.addParameter("-e");
-            String nodeCode = "var childProcess = require('child_process');" +
-                    "var path = require('path');" +
-                    "var fs = require('fs');" +
-                    "var globalNodeModules = childProcess.execSync('npm root -g').toString().trim();" +
-                    "var packageDir = path.join(globalNodeModules, 'bem-tools-create');" +
-                    "var create = require(packageDir); create('" + settings.directory  + '/' + settings.block  +"')";
-            commandLine.addParameter(nodeCode);
-//        }
+//            String nodeCode = "var childProcess = require('child_process');" +
+//                    "var path = require('path');" +
+//                    "var fs = require('fs');" +
+//                    "var globalNodeModules = childProcess.execSync('npm root -g').toString().trim();" +
+//                    "var packageDir = path.join(globalNodeModules, 'bem-tools-create');" +
+//                    "var create = require(packageDir); create('" + settings.block  +"');";
+        String nodeCode = "var create = require('/usr/local/lib/node_modules/bem-tools-create'); create('" + settings.block  +"');";
+
+        commandLine.addParameter(nodeCode);
 
         return commandLine;
     }

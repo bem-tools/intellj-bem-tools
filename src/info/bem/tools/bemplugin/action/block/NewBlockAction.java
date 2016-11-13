@@ -52,11 +52,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
         }
 
         BemPluginProjectComponent component = project.getComponent(BemPluginProjectComponent.class);
-        component.nodeInterpreter = "/usr/local/bin/node";
-        component.bemBlockExecutable = "/Users/h4/bemBlock.js";
 
-//        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), component.nodeInterpreter, component.bemBlockExecutable);
-//        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), "/usr/local/bin/node", "/Users/h4/bemBlock.js");
     }
 
     public NewBlockAction() {
@@ -91,16 +87,11 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
         String directory = psiDirectory.toString().replace("PsiDirectory:","");
 
-        final String[] techs = {};
-
         BemPluginProjectComponent component = project.getComponent(BemPluginProjectComponent.class);
-
-        final String elName = "";
-        final String modName = "";
 
         // Запускаем node-файл и он пыщь-пыщь что-то там делает
         // Потом всё нужно получить пути до новых файлов и вернуть список инстансов PsiFile
-        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), directory, newName, techs, elName, modName);
+        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), directory, component.nodeInterpreter, newName);
         return new PsiElement[0];
     }
 
@@ -127,6 +118,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
         private JCheckBox bemhtmlCheckBox;
         private JCheckBox jsCheckBox;
         private final MyInputValidator myValidator;
+        private String myErrorTitle;
 
         private final Project myProject;
 
@@ -134,6 +126,7 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
             super(project, true);
             myProject = project;
             myValidator = validator;
+            myErrorTitle = "Error";
 
             init();
 

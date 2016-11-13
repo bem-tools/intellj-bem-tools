@@ -17,18 +17,14 @@ public class BemBlockSettings {
 
     public static BemBlockSettings build(@NotNull String cwd,
                                          @NotNull String directory,
-                                         @NotNull String block,
-                                         @NotNull String[] techs,
-                                         @NotNull String elName,
-                                         @NotNull String modName
+                                         @NotNull String nodeInterpreter,
+                                         @NotNull String block
     ) {
         BemBlockSettings settings = new BemBlockSettings();
         settings.cwd = cwd;
         settings.directory = directory;
+        settings.node = nodeInterpreter;
         settings.block = block;
-        settings.techs = techs;
-        settings.elName = elName;
-        settings.modName = modName;
         return settings;
     }
 }
