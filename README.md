@@ -15,6 +15,13 @@ npm i -g bem-tools/bem-tools-create
 
 Download [BEM.jar](https://github.com/bem-tools/intellj-bem-tools/blob/master/BEM.jar) and install plugin (use "instal plugin from disk..." option)
 
+* Go to preferences, bem plugin page (Preferences -> Other Settings -> BEM)
+* Set the path to the nodejs interpreter bin file.
+* Set the path to the bem bin file.
+  * On Mac/Unix should point to ```/usr/local/lib/node_modules/bem-tools-core/bin/bem```
+  * On Windows should point to  ````C:\Users\<username>\AppData\Roaming\npm\bem-tools-core\bin\bem```
+
+
 ##Using
 
 File/New/BEM Block
