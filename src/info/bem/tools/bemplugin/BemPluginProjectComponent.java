@@ -25,6 +25,7 @@ public class BemPluginProjectComponent implements ProjectComponent {
     public Settings settings;
     protected Project project;
     public String nodeInterpreter;
+    public String bemExecutable;
     public boolean treatAsWarnings;
     public boolean pluginEnabled;
     private static final Logger LOG = Logger.getInstance(BemBundle.LOG_ID);
@@ -88,6 +89,7 @@ public class BemPluginProjectComponent implements ProjectComponent {
         }
 
         nodeInterpreter = settings.nodeInterpreter;
+        bemExecutable = settings.bemExecutable;
         treatAsWarnings = settings.treatAllIssuesAsWarnings;
         pluginEnabled = settings.pluginEnabled;
         settingValidStatus = true;

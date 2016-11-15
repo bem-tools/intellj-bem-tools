@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class BemBlockSettings {
     public String node;
+    public String bemExecutablePath;
     public String cwd;
     public String directory;
     public String block;
@@ -18,12 +19,14 @@ public class BemBlockSettings {
     public static BemBlockSettings build(@NotNull String cwd,
                                          @NotNull String directory,
                                          @NotNull String nodeInterpreter,
+                                         @NotNull String bemExecutablePath,
                                          @NotNull String block
     ) {
         BemBlockSettings settings = new BemBlockSettings();
         settings.cwd = cwd;
         settings.directory = directory;
         settings.node = nodeInterpreter;
+        settings.bemExecutablePath = bemExecutablePath;
         settings.block = block;
         return settings;
     }

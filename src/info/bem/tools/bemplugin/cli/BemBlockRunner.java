@@ -1,6 +1,5 @@
 package info.bem.tools.bemplugin.cli;
 
-import com.google.common.base.Charsets;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.ProcessOutput;
@@ -14,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
 
@@ -31,9 +31,10 @@ public class BemBlockRunner {
     public static BemBlockResult run(@NotNull String cwd,
                                      @NotNull String directory,
                                      @NotNull String nodeInterpreter,
+                                     @NotNull String bemBin,
                                      @NotNull String block
     ) {
-        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, nodeInterpreter, block);
+        BemBlockSettings settings = BemBlockSettings.build(cwd, directory, nodeInterpreter, bemBin, block);
 
         return run(settings);
     }
@@ -71,17 +72,19 @@ public class BemBlockRunner {
 //        if (SystemInfo.isWindows) {}
 
 
-            commandLine.setExePath(settings.node);
-            commandLine.addParameter("-e");
-//            String nodeCode = "var childProcess = require('child_process');" +
-//                    "var path = require('path');" +
-//                    "var fs = require('fs');" +
-//                    "var globalNodeModules = childProcess.execSync('npm root -g').toString().trim();" +
-//                    "var packageDir = path.join(globalNodeModules, 'bem-tools-create');" +
-//                    "var create = require(packageDir); create('" + settings.block  +"');";
-        String nodeCode = "var create = require('/usr/local/lib/node_modules/bem-tools-create'); create('" + settings.block  +"');";
+        commandLine.setExePath(settings.node);
 
-        commandLine.addParameter(nodeCode);
+        commandLine.setExePath(settings.node);
+        commandLine.addParameter(settings.bemExecutablePath);
+
+        commandLine.addParameter("create");
+        commandLine.addParameter(settings.block);
+
+        // commandLine.addParameter("-e");
+
+        // String nodeCode = "var create = require('/usr/local/lib/node_modules/bem-tools-create'); create('" + settings.block  +"');";
+
+        // commandLine.addParameter(nodeCode);
 
         return commandLine;
     }
@@ -89,7 +92,7 @@ public class BemBlockRunner {
     @NotNull
     private static ProcessOutput execute(@NotNull GeneralCommandLine commandLine, int timeoutInMilliseconds) throws ExecutionException {
         Process process = commandLine.createProcess();
-        OSProcessHandler processHandler = new ColoredProcessHandler(process, commandLine.getCommandLineString(), Charsets.UTF_8);
+        OSProcessHandler processHandler = new ColoredProcessHandler(process, commandLine.getCommandLineString());
         final ProcessOutput output = new ProcessOutput();
         processHandler.addProcessListener(new ProcessAdapter() {
             public void onTextAvailable(ProcessEvent event, Key outputType) {
@@ -111,5 +114,26 @@ public class BemBlockRunner {
             throw new ExecutionException("Command '" + commandLine.getCommandLineString() + "' is timed out.");
         }
         return output;
+    }
+
+    @NotNull
+    public static String version(@NotNull BemBlockSettings settings) throws ExecutionException {
+//        if (!new File(settings.bemExecutablePath).exists()) {
+//            LOG.warn("Calling version with invalid jscs exe " + settings.bemExecutablePath);
+//            return "";
+//        }
+//        ProcessOutput out = runVersion(settings);
+//        if (out.getExitCode() == 0) {
+//            return out.getStdout().trim();
+//        }
+        return "";
+    }
+
+    @NotNull
+    private static ProcessOutput runVersion(@NotNull BemBlockSettings settings) throws ExecutionException {
+        GeneralCommandLine commandLine = createCommandLine(settings);
+        commandLine.addParameter("--version");
+        return execute(commandLine, TIME_OUT);
+
     }
 }

@@ -13,6 +13,7 @@ import com.wix.utils.Strings;
                 @Storage(id = "dir", file = StoragePathMacros.PROJECT_CONFIG_DIR + "/bemPlugin.xml", scheme = StorageScheme.DIRECTORY_BASED)})
 public class Settings implements PersistentStateComponent<Settings> {
     public String nodeInterpreter;
+    public String bemExecutable = "";
     public boolean treatAllIssuesAsWarnings;
     public boolean pluginEnabled;
 
@@ -37,12 +38,13 @@ public class Settings implements PersistentStateComponent<Settings> {
     }
 
     public String getVersion() {
-        return nodeInterpreter;
+        return nodeInterpreter  + bemExecutable ;
     }
 
     public boolean isEqualTo(Settings settings) {
         return settings != null &&
                 treatAllIssuesAsWarnings == settings.treatAllIssuesAsWarnings &&
-                Strings.areEqual(nodeInterpreter, settings.nodeInterpreter);
+                Strings.areEqual(nodeInterpreter, settings.nodeInterpreter) &&
+                Strings.areEqual(bemExecutable, settings.bemExecutable);
     }
 }

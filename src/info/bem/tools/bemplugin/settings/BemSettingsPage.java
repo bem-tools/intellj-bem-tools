@@ -23,10 +23,12 @@ import com.wix.settings.ValidationInfo;
 import com.wix.settings.ValidationUtils;
 import com.wix.ui.PackagesNotificationPanel;
 import com.wix.utils.FileUtils;
+import info.bem.tools.bemplugin.cli.BemFinder;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.util.NotNullProducer;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -45,16 +47,23 @@ public class BemSettingsPage implements Configurable {
 
     private JPanel panel;
     private JPanel errorPanel;
+    private TextFieldWithHistoryWithBrowseButton bemBinField;
     private TextFieldWithHistoryWithBrowseButton nodeInterpreterField;
+    private TextFieldWithHistoryWithBrowseButton bemrcFile;
     private HyperlinkLabel usageLink;
     private JLabel nodeInterpreterLabel;
     private JLabel versionLabel;
+    private JLabel pathToBemBinLabel;
+    private JLabel bemConfigFilePathLabel;
     private final PackagesNotificationPanel packagesNotificationPanel;
+    private JRadioButton searchForBemrcInRadioButton;
+    private JRadioButton useProjectBemrcRadioButton;
 
     public BemSettingsPage(@NotNull final Project project) {
         this.project = project;
 
         configNodeField();
+        configBinField();
 
         this.packagesNotificationPanel = new PackagesNotificationPanel(project);
         errorPanel.add(this.packagesNotificationPanel.getComponent(), BorderLayout.CENTER);
@@ -66,6 +75,7 @@ public class BemSettingsPage implements Configurable {
         };
 
         nodeInterpreterField.getChildComponent().getTextEditor().getDocument().addDocumentListener(docAdp);
+        bemBinField.getChildComponent().getTextEditor().getDocument().addDocumentListener(docAdp);
     }
 
     private void addDocumentListenerToComp(TextFieldWithHistoryWithBrowseButton field, DocumentAdapter docAdp) {
@@ -105,6 +115,7 @@ public class BemSettingsPage implements Configurable {
 
     private void validate() {
         List<ValidationInfo> errors = new ArrayList<ValidationInfo>();
+        validateField(errors, bemBinField, false, "Path to bem is invalid {{LINK}}");
         validateField(errors, nodeInterpreterField, false, "Path to node interpreter is invalid {{LINK}}");
         if (errors.isEmpty()) {
             try {
@@ -190,11 +201,13 @@ public class BemSettingsPage implements Configurable {
 
     public void copyTo(Settings settings) {
         settings.nodeInterpreter = nodeInterpreterField.getChildComponent().getText();
+        settings.bemExecutable = bemBinField.getChildComponent().getText();
     }
 
     protected void loadSettings() {
         Settings settings = getSettings();
         nodeInterpreterField.getChildComponent().setText(settings.nodeInterpreter);
+        bemBinField.getChildComponent().setText(settings.bemExecutable);
         setEnabledState(true);
     }
 
@@ -214,5 +227,38 @@ public class BemSettingsPage implements Configurable {
     private void createUIComponents() {
         // TODO: place custom component creation code here
         usageLink = SwingHelper.createWebHyperlink(HOW_TO_USE_BEM, HOW_TO_USE_LINK);
+    }
+
+    private void getVersion() {
+        if (settings != null &&
+                areEqual(nodeInterpreterField, settings.node) &&
+                areEqual(bemBinField, settings.bemExecutablePath) &&
+                settings.cwd.equals(project.getBasePath())
+                ) {
+            return;
+        }
+        settings = new BemBlockSettings();
+        settings.node = nodeInterpreterField.getChildComponent().getText();
+        settings.bemExecutablePath = bemBinField.getChildComponent().getText();
+        settings.cwd = project.getBasePath();
+        try {
+            String version = BemBlockRunner.version(settings);
+            versionLabel.setText(version.trim());
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void configBinField() {
+        configWithDefaults(bemBinField);
+        SwingHelper.addHistoryOnExpansion(bemBinField.getChildComponent(), new NotNullProducer<List<String>>() {
+            @NotNull
+            public List<String> produce() {
+                List<File> newFiles = BemFinder.searchForBemBin(getProjectPath());
+                return FileUtils.toAbsolutePath(newFiles);
+            }
+        });
+        SwingHelper.installFileCompletionAndBrowseDialog(project, bemBinField, "Select bem.js cli", FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
     }
 }

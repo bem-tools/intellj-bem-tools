@@ -91,7 +91,11 @@ public class NewBlockAction extends CreateElementActionBase implements DumbAware
 
         // Запускаем node-файл и он пыщь-пыщь что-то там делает
         // Потом всё нужно получить пути до новых файлов и вернуть список инстансов PsiFile
-        BemBlockResult result = BemBlockRunner.run(project.getBasePath(), directory, component.nodeInterpreter, newName);
+        BemBlockResult result = BemBlockRunner.run(project.getBasePath(),
+                directory,
+                component.nodeInterpreter,
+                component.bemExecutable,
+                newName);
         return new PsiElement[0];
     }
 
