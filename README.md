@@ -4,7 +4,7 @@ Now working on Unix-like OS only.
 
 **Warning:** it's alpha version.
 
-##Installation:
+## Installation:
 
 Install [bem-tools-core](https://github.com/bem-tools/bem-tools-core/)
 
@@ -22,7 +22,7 @@ Download [BEM.jar](https://github.com/bem-tools/intellj-bem-tools/blob/master/BE
   * On Windows should point to  ````C:\Users\<username>\AppData\Roaming\npm\bem-tools-core\bin\bem```
 
 
-##Using
+## Using
 
 File/New/BEM Block
 ```
@@ -32,4 +32,5 @@ b1 // will create b1 with default techs from config in current folder
 ```
 
 ## Open Source Libs
-[intellij-common lib] (https://github.com/idok/intellij-common)
+
+[intellij-common lib](https://github.com/idok/intellij-common)
